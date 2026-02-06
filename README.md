@@ -2,7 +2,7 @@
 
 **Orion** is a natural-language terminal assistant that converts conversational user commands into safe, structured system automation. It eliminates repetitive navigation by acting as a smart launchpad, shortcut manager, and AI-powered command router.
 
-## 🚀 Features
+## Features
 
 - **Smart Shortcuts**: Launch apps or URLs with short aliases (`o d2l` → `chrome https://d2l.msu.edu`).
 - **App Launcher**: Automatically detects apps (`o outlook` → `open -a Outlook.app`).
@@ -10,7 +10,7 @@
 - **Safety First**: Conservative risk gating ensures no dangerous commands run without confirmation.
 - **Cross-Platform**: Built in Go for macOS (Phase 1), with Linux/Windows support planned.
 
-## 📦 Installation
+## Installation
 
 ### Pre-built Binaries (macOS)
 1.  **Download** the binary for your architecture (`amd64` for Intel, `arm64` for Apple Silicon).
@@ -35,7 +35,7 @@ cd orion
 make release
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 Orion config is stored at `~/.config/orion/config.yaml`.
 
@@ -55,7 +55,7 @@ features:
   ai_fallback: true
 ```
 
-## 🛠 Usage
+## Usage
 
 ### Shortcuts
 Add frequently used URLs or commands:
@@ -93,12 +93,12 @@ o doctor       # Check system health & config
 o update       # Check for updates
 ```
 
-## 🤝 Contributing
+## Contributing
 1.  Fork the repo.
 2.  Feature branch: `git checkout -b feature/xyz`
 3.  Commit & Push.
 4.  Submit PR.
 
-## 📄 License
+## License
 MIT
 # orion
