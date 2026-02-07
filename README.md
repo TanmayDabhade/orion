@@ -17,30 +17,55 @@
 curl -fsSL https://github.com/TanmayDabhade/orion/releases/latest/download/install.sh | sh
 ```
 
-### Manual Install
-Download the binary for your system from the [Releases page](https://github.com/TanmayDabhade/orion/releases).
-
 ## Configuration
 
 Orion config is stored at `~/.config/orion/config.yaml`.
 
-### Enable Google Gemini AI (Recommended)
+### 1. Enable Google Gemini AI (Recommended)
 By default, Orion tries to use Ollama (local). To use Google's Gemini models:
 
 1.  Get an API Key from [Google AI Studio](https://aistudio.google.com/).
-2.  Update your config:
+2.  Run `o doctor` to verify config location.
+3.  Update your config:
 
 ```yaml
 ai_provider: gemini
 ai_key: YOUR_GEMINI_API_KEY_HERE
 ai_model: gemini-pro
-search_engine: https://google.com/search?q=%s
-risk_threshold: medium
 features:
   ai_fallback: true
 ```
 
+### 2. Enable Shell Completion
+Orion supports autocompletion for Bash, Zsh, Fish, and PowerShell.
+Run the following to see setup instructions for your shell:
+
+```bash
+o completion --help
+```
+
+**Example (Zsh):**
+```bash
+# Add to ~/.zshrc
+echo "autoload -U compinit; compinit" >> ~/.zshrc
+o completion zsh > "${fpath[1]}/_o"
+```
+
 ## Usage
+
+### App Launching (Zero Config)
+Orion automatically detects installed applications on macOS.
+
+```bash
+o slack        # Opens Slack.app
+o chrome       # Opens Google Chrome.app
+o code .       # Opens current directory in VS Code
+```
+
+See all detected apps:
+```bash
+o list --apps
+```
 
 ### Shortcuts
 Add frequently used URLs or commands:
@@ -54,26 +79,20 @@ o d2l
 o mail
 ```
 
-### App Launching
-Orion smart-matches `.app` names:
-```bash
-o outlook      # Launches Outlook.app
-o spotify      # Launches Spotify.app
-```
-
 ### AI Commands (Natural Language)
-If no shortcut matches, Orion routes to AI (if configured):
+If no shortcut or app matches, Orion routes to AI:
 ```bash
 o search discrete math cheat sheet
 # -> Opens Google Search for "discrete math cheat sheet"
 
-o open youtube
-# -> Opens youtube.com
+o how do i check open ports?
+# -> Suggests: lsof -i -P
 ```
 
 ### Management
 ```bash
 o list         # List all shortcuts
+o list --apps  # List detected applications
 o doctor       # Check system health & config
 o update       # Update Orion to the latest version
 ```
@@ -86,4 +105,3 @@ o update       # Update Orion to the latest version
 
 ## License
 MIT
-# orion
