@@ -82,11 +82,16 @@ o mail
 ### AI Commands (Natural Language)
 If no shortcut or app matches, Orion routes to AI:
 ```bash
-o search discrete math cheat sheet
-# -> Opens Google Search for "discrete math cheat sheet"
+# Complex Search
+o search about computational neuroscience
+# -> Opens Google Search for "computational neuroscience" (strips "about")
 
 o how do i check open ports?
 # -> Suggests: lsof -i -P
+
+# Multi-step
+o "Open Safari, go to github.com, search for orion"
+# -> open -a Safari "https://github.com/search?q=orion"
 ```
 
 ### Management

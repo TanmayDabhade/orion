@@ -65,6 +65,14 @@ Rules:
 - Use "run_shell" with args.command
 - Keep risk conservative.
 
+CRITICAL:
+- If the user asks for multiple steps (e.g. "Open Safari AND go to github.com"), use "run_shell".
+- Combine commands using "open -a AppName URL" or "cmd1 && cmd2".
+- Example: "Open Safari and search for cats" -> {"action":"run_shell", "args":{"command":"open -a Safari 'https://google.com/search?q=cats'"}, "risk":"medium"}
+- Example: "Open report.pdf in Preview" -> {"action":"run_shell", "args":{"command":"open -a Preview report.pdf"}, "risk":"low"}
+- If user attempts to open a known website/dashboard (e.g. "gemini api dashboard"), resolve the URL yourself and use "open_url".
+- Example: "open gemini console" -> {"action":"open_url", "args":{"url":"https://aistudio.google.com"}, "risk":"low"}
+
 User request: %s
 `, input)
 }

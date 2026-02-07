@@ -64,8 +64,20 @@ func Route(input string, shortcutMap map[string]string) (Result, error) {
 		}, nil
 	}
 
+	// Handle explicit "search" command
 	if strings.HasPrefix(lower, "search ") {
 		q := strings.TrimSpace(trimmed[7:])
+		
+		// Remove common prepositions for cleaner queries
+		// "search for X" -> "X"
+		// "search about X" -> "X"
+		lowerQ := strings.ToLower(q)
+		if strings.HasPrefix(lowerQ, "for ") {
+			q = strings.TrimSpace(q[4:])
+		} else if strings.HasPrefix(lowerQ, "about ") {
+			q = strings.TrimSpace(q[6:])
+		}
+		
 		if q != "" {
 			return Result{
 				Intent: models.Intent{
