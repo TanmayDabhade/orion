@@ -75,7 +75,7 @@ o open youtube
 ```bash
 o list         # List all shortcuts
 o doctor       # Check system health & config
-o update       # Check for updates
+o update       # Update Orion to the latest version
 ```
 
 ## Contributing
