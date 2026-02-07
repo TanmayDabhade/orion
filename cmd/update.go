@@ -13,8 +13,10 @@ var updateCmd = &cobra.Command{
 		fmt.Println("Checking for updates...")
 		
 		// 1. Get latest release version from GitHub API (simulated)
-		latestVersion := "v0.1.0" // TODO: Fetch from https://api.github.com/repos/USER/REPO/releases/latest
-		currentVersion := "v0.0.1" // TODO: define version constant in root.go
+		// TODO: Implement actual API call using:
+		// resp, err := http.Get("https://api.github.com/repos/TanmayDabhade/orion/releases/latest")
+		latestVersion := "v0.1.0" // Placeholder until API call is implemented
+		currentVersion := Version
 
 		if latestVersion == currentVersion {
 			fmt.Println("Orion is already up to date.")

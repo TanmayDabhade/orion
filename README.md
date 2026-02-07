@@ -12,28 +12,13 @@
 
 ## Installation
 
-### Pre-built Binaries (macOS)
-1.  **Download** the binary for your architecture (`amd64` for Intel, `arm64` for Apple Silicon).
-2.  **Install** to your path:
-    ```bash
-    # For Intel Macs
-    sudo mv dist/orion_darwin_amd64 /usr/local/bin/o
-
-    # For Apple Silicon Macs (M1/M2/M3)
-    sudo mv dist/orion_darwin_arm64 /usr/local/bin/o
-    ```
-3.  **Verify**:
-    ```bash
-    o --help
-    ```
-
-### Build from Source
-Requirements: Go 1.21+
+### Automatic Install (macOS & Linux)
 ```bash
-git clone https://github.com/your-repo/orion.git
-cd orion
-make release
+curl -fsSL https://github.com/TanmayDabhade/orion/releases/latest/download/install.sh | sh
 ```
+
+### Manual Install
+Download the binary for your system from the [Releases page](https://github.com/TanmayDabhade/orion/releases).
 
 ## Configuration
 

@@ -17,12 +17,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var yes bool
+var (
+	yes     bool
+	Version = "dev" // overridden by ldflags
+)
 
 var rootCmd = &cobra.Command{
-	Use:   "o",
-	Short: "Orion: natural-language terminal assistant",
-	Args:  cobra.ArbitraryArgs,
+	Use:     "o",
+	Version: Version,
+	Short:   "Orion: natural-language terminal assistant",
+	Args:    cobra.ArbitraryArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
 			return cmd.Help()
