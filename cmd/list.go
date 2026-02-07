@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"sort"
 
+	"orion/internal/apps"
 	"orion/internal/config"
 	"orion/internal/history"
 	"orion/internal/ranking"
@@ -11,13 +13,38 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var ranked bool
+var (
+	ranked      bool
+	listApps    bool
+)
 
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List shortcuts",
+	Short: "List shortcuts or apps",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if listApps {
+			fmt.Println("Scanning for applications...")
+			appList := apps.List()
+			if len(appList) == 0 {
+				fmt.Println("No applications found.")
+				return nil
+			}
+
+			// Sort by key
+			keys := make([]string, 0, len(appList))
+			for k := range appList {
+				keys = append(keys, k)
+			}
+			sort.Strings(keys)
+
+			for _, k := range keys {
+				// Format: googlechrome -> /Applications/Google Chrome.app
+				fmt.Printf("%s -> %s\n", k, appList[k])
+			}
+			return nil
+		}
+
 		entries, err := shortcuts.Load(config.ShortcutsPath())
 		if err != nil {
 			return err
@@ -53,6 +80,7 @@ var listCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(listCmd)
 	listCmd.Flags().BoolVar(&ranked, "ranked", false, "rank shortcuts by usage")
+	listCmd.Flags().BoolVar(&listApps, "apps", false, "list detected applications")
 }
 
 func normalizedKeys(keys []string) []string {

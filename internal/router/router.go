@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strings"
 
+	"orion/internal/apps"
 	"orion/internal/shortcuts"
 	"orion/models"
 )
@@ -40,6 +41,27 @@ func Route(input string, shortcutMap map[string]string) (Result, error) {
 				},
 			}, nil
 		}
+	}
+
+	// Dynamic App Detection
+	// If the input doesn't look like a command or URL, check if it's an app
+	if path, ok := apps.Find(trimmed); ok {
+		return Result{
+			Intent: models.Intent{
+				Action: models.ActionOpenApp,
+				Args:   map[string]string{"app": path}, // Pass full path
+			},
+		}, nil
+	}
+
+	// Also check "app name" (e.g. "Google Chrome")
+	if path, ok := apps.Find(strings.ReplaceAll(trimmed, " ", "")); ok {
+		return Result{
+			Intent: models.Intent{
+				Action: models.ActionOpenApp,
+				Args:   map[string]string{"app": path},
+			},
+		}, nil
 	}
 
 	if strings.HasPrefix(lower, "search ") {
