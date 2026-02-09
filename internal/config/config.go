@@ -5,16 +5,35 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
+// Save writes the configuration to the config file
+func Save(cfg Config) error {
+	path := Path()
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return err
+	}
+
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	encoder := yaml.NewEncoder(f)
+	encoder.SetIndent(2)
+	return encoder.Encode(cfg)
+}
+
 type Config struct {
-	AIProvider    string          `mapstructure:"ai_provider"`
-	AIEndpoint    string          `mapstructure:"ai_endpoint"`
-	AIModel       string          `mapstructure:"ai_model"`
-	AIKey         string          `mapstructure:"ai_key"`
-	SearchEngine  string          `mapstructure:"search_engine"`
-	RiskThreshold string          `mapstructure:"risk_threshold"`
-	Features      map[string]bool `mapstructure:"features"`
+	AIProvider    string          `mapstructure:"ai_provider" yaml:"ai_provider"`
+	AIEndpoint    string          `mapstructure:"ai_endpoint" yaml:"ai_endpoint"`
+	AIModel       string          `mapstructure:"ai_model" yaml:"ai_model"`
+	AIKey         string          `mapstructure:"ai_key" yaml:"ai_key"`
+	SearchEngine  string          `mapstructure:"search_engine" yaml:"search_engine"`
+	RiskThreshold string          `mapstructure:"risk_threshold" yaml:"risk_threshold"`
+	Features      map[string]bool `mapstructure:"features" yaml:"features"`
 }
 
 func Default() Config {

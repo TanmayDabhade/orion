@@ -19,24 +19,42 @@ curl -fsSL https://github.com/TanmayDabhade/orion/releases/latest/download/insta
 
 ## Configuration
 
-Orion config is stored at `~/.config/orion/config.yaml`.
+Get your current configuration:
+```bash
+o config list
+```
+
+Set your Gemini API Key (or other settings):
+```bash
+o config set ai_key YOUR_API_KEY
+o config set ai_provider gemini
+```
+
+View a specific setting:
+```bash
+o config get ai_model
+```
+
+The configuration is stored in `~/.config/orion/config.yaml`.
 
 ### 1. Enable Google Gemini AI (Recommended)
 By default, Orion tries to use Ollama (local). To use Google's Gemini models:
 
-1.  Get an API Key from [Google AI Studio](https://aistudio.google.com/).
-2.  Run `o doctor` to verify config location.
-3.  Update your config:
+1. Get an API key from [Google AI Studio](https://aistudio.google.com/apikey).
+2. Set it using the config command:
+   ```bash
+   o config set ai_key YOUR_API_KEY
+   o config set ai_provider gemini
+   ```
 
-```yaml
-ai_provider: gemini
-ai_key: YOUR_GEMINI_API_KEY_HERE
-ai_model: gemini-pro
-features:
-  ai_fallback: true
+### 2. Use Ollama (Local)
+Ensure [Ollama](https://ollama.ai) is installed and running (`ollama serve`). Orion defaults to `llama3.1`.
+To change the model:
+```bash
+o config set ai_model mistral
 ```
 
-### 2. Enable Shell Completion
+### 3. Enable Shell Completion
 Orion supports autocompletion for Bash, Zsh, Fish, and PowerShell.
 Run the following to see setup instructions for your shell:
 

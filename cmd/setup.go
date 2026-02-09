@@ -36,10 +36,63 @@ Run this command after installation or whenever you install new apps.`,
 			return fmt.Errorf("failed to load existing shortcuts: %w", err)
 		}
 
-		// Merge: app shortcuts take lower priority than user-defined ones
+		// Default web shortcuts
+		defaults := map[string]string{
+			"gh":       "open https://github.com",
+			"so":       "open https://stackoverflow.com",
+			"chat":     "open https://chatgpt.com",
+			"claude":   "open https://claude.ai",
+			"gemini":   "open https://aistudio.google.com",
+			"gmail":    "open https://mail.google.com",
+			"gcal":     "open https://calendar.google.com",
+			"gmaps":    "open https://maps.google.com",
+			"gdrive":   "open https://drive.google.com",
+			"youtube":  "open https://youtube.com",
+			"meet":     "open https://meet.google.com",
+			"news":     "open https://news.ycombinator.com",
+			"reddit":   "open https://reddit.com",
+			"twitter":  "open https://twitter.com",
+			"linkedin": "open https://linkedin.com",
+			"local":    "open http://localhost:3000",
+			"console":  "open https://console.cloud.google.com",
+			"aws":      "open https://console.aws.amazon.com",
+		}
+
+		// Merge defaults: only add if key doesn't exist
+		for key, cmd := range defaults {
+			if _, exists := existingShortcuts[key]; !exists {
+				existingShortcuts[key] = cmd
+			}
+		}
+
+		// Merge: app shortcuts take lower priority than user-defined ones and defaults
+		// Also add smart aliases for common apps
+		aliases := map[string][]string{
+			"google chrome":        {"chrome"},
+			"google chrome canary": {"canary"},
+			"firefox":              {"ff"},
+			"visual studio code":   {"code", "vscode"},
+			"sublime text":         {"subl"},
+			"adobe photoshop 2024": {"photoshop", "ps"},
+			"iterm":                {"iterm"},
+			"warp":                 {"warp"},
+			"brave browser":        {"brave"},
+			"microsoft edge":       {"edge"},
+			"arc":                  {"arc"},
+		}
+
 		for key, path := range appMap {
 			if _, exists := existingShortcuts[key]; !exists {
 				existingShortcuts[key] = fmt.Sprintf("open -a '%s'", path)
+			}
+			// Check for aliases
+			if shortNames, ok := aliases[key]; ok {
+				for _, short := range shortNames {
+					if _, exists := existingShortcuts[short]; !exists {
+						fmt.Printf("   ➕ Added alias: %s -> %s\n", short, key)
+						existingShortcuts[short] = fmt.Sprintf("open -a '%s'", path)
+					}
+				}
 			}
 		}
 
