@@ -44,7 +44,7 @@ var configListCmd = &cobra.Command{
 			}
 
 			val := v.Field(i).Interface()
-			
+
 			// Mask secrets
 			if strings.Contains(strings.ToLower(tag), "key") {
 				strVal := fmt.Sprintf("%v", val)

@@ -65,9 +65,9 @@ func init() {
 	// We replace the default completion command with our own custom one
 	// But since Cobra adds the default one automatically, we don't need to add it again
 	// unless we disable global completion which is complex.
-	// Instead, we can just *override* it if we add it last, or we can just hope 
-    // to provide good docs. 
-    // Actually, Cobra's default completion command name is "completion".
-    // If we add a command named "completion", it overrides the default one.
+	// Instead, we can just *override* it if we add it last, or we can just hope
+	// to provide good docs.
+	// Actually, Cobra's default completion command name is "completion".
+	// If we add a command named "completion", it overrides the default one.
 	rootCmd.AddCommand(completionCmd)
 }
