@@ -85,11 +85,11 @@ func findAssetURL(assets []Asset) (string, error) {
 	arch := runtime.GOARCH
 
 	// Map Go arch to GoReleaser naming convention
-	// .goreleaser.yaml: 
+	// .goreleaser.yaml:
 	//   - if eq .Arch "amd64" }}x86_64
 	//   - else if eq .Arch "386" }}i386
 	//   - else }}{{ .Arch }}{{ end }}
-	
+
 	var targetArch string
 	switch arch {
 	case "amd64":
@@ -131,7 +131,7 @@ func doUpdate(url string) error {
 	defer gzr.Close()
 
 	tr := tar.NewReader(gzr)
-	
+
 	var binaryData []byte
 	found := false
 
@@ -164,7 +164,7 @@ func doUpdate(url string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Resolve symlinks if any (like Homebrew symlinks)
 	realExe, err := filepath.EvalSymlinks(currentExe)
 	if err != nil {

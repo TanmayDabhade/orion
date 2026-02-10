@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
+	"strings"
+	"text/tabwriter"
 
 	"orion/internal/apps"
 	"orion/internal/config"
@@ -14,8 +17,8 @@ import (
 )
 
 var (
-	ranked      bool
-	listApps    bool
+	ranked   bool
+	listApps bool
 )
 
 var listCmd = &cobra.Command{
@@ -38,10 +41,13 @@ var listCmd = &cobra.Command{
 			}
 			sort.Strings(keys)
 
+			w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
+			fmt.Fprintln(w, "Command\tApplication Path")
 			for _, k := range keys {
 				// Format: googlechrome -> /Applications/Google Chrome.app
-				fmt.Printf("%s -> %s\n", k, appList[k])
+				fmt.Fprintf(w, "%s\t%s\n", k, filepath.Base(appList[k]))
 			}
+			w.Flush()
 			return nil
 		}
 
@@ -70,11 +76,27 @@ var listCmd = &cobra.Command{
 			keys = ranking.RankedKeys(keys, usage)
 		}
 
+		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
+		fmt.Fprintln(w, "Command\tExtension")
 		for _, key := range keys {
-			fmt.Fprintf(cmd.OutOrStdout(), "%s -> %s\n", key, entries[key])
+			fmt.Fprintf(w, "%s\t%s\n", key, prettifyExtension(entries[key]))
 		}
+		w.Flush()
 		return nil
 	},
+}
+
+func prettifyExtension(cmd string) string {
+	if strings.HasPrefix(cmd, "open -a") {
+		parts := strings.Split(cmd, "'")
+		if len(parts) >= 2 {
+			return filepath.Base(parts[1])
+		}
+	}
+	if strings.HasPrefix(cmd, "open ") {
+		return strings.TrimPrefix(cmd, "open ")
+	}
+	return cmd
 }
 
 func init() {
