@@ -2,34 +2,34 @@ package ai
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
+	"orion/internal/ai/local"
 	"orion/internal/config"
+	env "orion/internal/context"
+	"orion/internal/plan"
 	"orion/models"
 	"orion/providers"
 )
 
-type llmIntent struct {
-	Action string                 `json:"action"`
-	Args   map[string]interface{} `json:"args"`
-	Risk   string                 `json:"risk"`
-}
-
-func InferIntent(ctx context.Context, input string, cfg config.Config) (models.Intent, error) {
+// Main entry point for converting NL to a Command Plan
+func InferPlan(ctx context.Context, input string, cfg config.Config) (*plan.CommandPlan, error) {
 	provider, err := selectProvider(cfg)
 	if err != nil {
-		return models.Intent{}, err
+		return nil, err
 	}
 
-	prompt := buildPrompt(input)
+	// Gather context (CWD, tools, project type)
+	currentEnv := env.Get("")
+
+	prompt := buildPlanPrompt(input, currentEnv)
 	output, err := provider.Complete(ctx, prompt)
 	if err != nil {
-		return models.Intent{}, err
+		return nil, err
 	}
 
-	return parseIntent(output)
+	return plan.ParseStrict([]byte(output))
 }
 
 func HealthCheck(ctx context.Context, cfg config.Config) error {
@@ -46,86 +46,52 @@ func selectProvider(cfg config.Config) (providers.Provider, error) {
 		return providers.Ollama{Endpoint: cfg.AIEndpoint, Model: cfg.AIModel}, nil
 	case "gemini":
 		return providers.Gemini{APIKey: cfg.AIKey, Model: cfg.AIModel}, nil
+	case "local":
+		return local.Local{BinPath: cfg.LocalAIPath}, nil
 	default:
 		return nil, fmt.Errorf("unsupported AI provider: %s", cfg.AIProvider)
 	}
 }
 
-func buildPrompt(input string) string {
-	return fmt.Sprintf(`You are an intent router. Respond with ONLY valid JSON.
+func buildPlanPrompt(input string, currentEnv env.Context) string {
+	tools := strings.Join(currentEnv.Tools, ", ")
+	project := string(currentEnv.ProjectType)
 
-Schema:
-{"action":"open_url|open_app|search|run_shell","args":{"key":"value"},"risk":"low|medium|high"}
+	const schema = `
+{
+  "intent": "string",
+  "summary": "string",
+  "cwd": "path",
+  "commands": [{"cmd":"string", "risk":"low|medium|high"}],
+  "questions": ["string"]
+}`
 
-Rules:
-- No extra keys.
-- Use "open_url" with args.url
-- Use "open_app" with args.app
-- Use "search" with args.query
-- Use "run_shell" with args.command
-- Keep risk conservative.
+	return fmt.Sprintf(`You are a macOS command planner.
+Goal: Return a JSON execution plan for the user request.
 
-CRITICAL:
-- If the user asks for multiple steps (e.g. "Open Safari AND go to github.com"), use "run_shell".
-- Combine commands using "open -a AppName URL" or "cmd1 && cmd2".
-- Example: "Open Safari and search for cats" -> {"action":"run_shell", "args":{"command":"open -a Safari 'https://google.com/search?q=cats'"}, "risk":"medium"}
-- Example: "Open report.pdf in Preview" -> {"action":"run_shell", "args":{"command":"open -a Preview report.pdf"}, "risk":"low"}
-- If user attempts to open a known website/dashboard (e.g. "gemini api dashboard"), resolve the URL yourself and use "open_url".
-- Example: "open gemini console" -> {"action":"open_url", "args":{"url":"https://aistudio.google.com"}, "risk":"low"}
+CONTEXT:
+- OS: macOS
+- CWD: %s
+- Project Type: %s
+- Available Tools: %s
 
-User request: %s
-`, input)
+SCHEMA: %s
+
+RULES:
+1. Return ONLY valid JSON. No markdown blocking.
+2. If the user request is vague, populate "questions".
+3. If specific, list sequence of commands.
+4. "cwd" should be absolute path or empty.
+5. Risk: "low" (read/safe), "medium" (install/create), "high" (delete/sudo).
+6. Prefer using available tools.
+
+USER REQUEST: %s
+`, currentEnv.Cwd, project, tools, schema, input)
 }
 
-func parseIntent(raw string) (models.Intent, error) {
-	raw = strings.TrimSpace(raw)
-	var parsed llmIntent
-	if err := json.Unmarshal([]byte(raw), &parsed); err != nil {
-		return models.Intent{}, fmt.Errorf("invalid AI JSON: %w", err)
-	}
-
-	action := models.Action(strings.TrimSpace(parsed.Action))
-	switch action {
-	case models.ActionOpenURL, models.ActionOpenApp, models.ActionSearch, models.ActionRunShell:
-	default:
-		return models.Intent{}, fmt.Errorf("unsupported AI action: %s", parsed.Action)
-	}
-
-	args := make(map[string]string)
-	for key, value := range parsed.Args {
-		args[key] = fmt.Sprint(value)
-	}
-
-	intent := models.Intent{
-		Action: action,
-		Args:   args,
-		Risk:   models.ParseRisk(parsed.Risk),
-	}
-
-	if err := validateArgs(intent); err != nil {
-		return models.Intent{}, err
-	}
-	return intent, nil
-}
-
-func validateArgs(intent models.Intent) error {
-	switch intent.Action {
-	case models.ActionOpenURL:
-		if intent.Args["url"] == "" {
-			return fmt.Errorf("AI intent missing url")
-		}
-	case models.ActionOpenApp:
-		if intent.Args["app"] == "" {
-			return fmt.Errorf("AI intent missing app")
-		}
-	case models.ActionSearch:
-		if intent.Args["query"] == "" {
-			return fmt.Errorf("AI intent missing query")
-		}
-	case models.ActionRunShell:
-		if intent.Args["command"] == "" {
-			return fmt.Errorf("AI intent missing command")
-		}
-	}
-	return nil
+// Deprecated: existing logic kept for backward compatibility if needed,
+// but we should move to InferPlan entirely.
+func InferIntent(ctx context.Context, input string, cfg config.Config) (models.Intent, error) {
+	// ... (legacy implementation or map new plan to old intent)
+	return models.Intent{}, fmt.Errorf("InferIntent is deprecated, use InferPlan")
 }

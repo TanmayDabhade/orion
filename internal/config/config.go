@@ -31,6 +31,7 @@ type Config struct {
 	AIEndpoint    string          `mapstructure:"ai_endpoint" yaml:"ai_endpoint"`
 	AIModel       string          `mapstructure:"ai_model" yaml:"ai_model"`
 	AIKey         string          `mapstructure:"ai_key" yaml:"ai_key"`
+	LocalAIPath   string          `mapstructure:"local_ai_path" yaml:"local_ai_path"`
 	SearchEngine  string          `mapstructure:"search_engine" yaml:"search_engine"`
 	RiskThreshold string          `mapstructure:"risk_threshold" yaml:"risk_threshold"`
 	Features      map[string]bool `mapstructure:"features" yaml:"features"`
@@ -41,6 +42,7 @@ func Default() Config {
 		AIProvider:    "ollama",
 		AIEndpoint:    "http://localhost:11434",
 		AIModel:       "llama3.1",
+		LocalAIPath:   "orion-llm",
 		SearchEngine:  "https://google.com/search?q=%s",
 		RiskThreshold: "medium",
 		Features:      map[string]bool{},
@@ -57,6 +59,7 @@ func Load() (Config, error) {
 	v.SetDefault("ai_endpoint", cfg.AIEndpoint)
 	v.SetDefault("ai_model", cfg.AIModel)
 	v.SetDefault("ai_key", os.Getenv("ORION_AI_KEY"))
+	v.SetDefault("local_ai_path", cfg.LocalAIPath)
 	v.SetDefault("search_engine", cfg.SearchEngine)
 	v.SetDefault("risk_threshold", cfg.RiskThreshold)
 
@@ -108,4 +111,8 @@ func ShortcutsPath() string {
 
 func HistoryPath() string {
 	return filepath.Join(Dir(), "history.db")
+}
+
+func LogsDir() string {
+	return filepath.Join(Dir(), "logs")
 }

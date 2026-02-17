@@ -112,6 +112,32 @@ o "Open Safari, go to github.com, search for orion"
 # -> open -a Safari "https://github.com/search?q=orion"
 ```
 
+### AI Command Runner (Explicit)
+For complex tasks or when you want to force AI processing, use `o ai`:
+
+```bash
+o ai "find all PDF files in Downloads containing 'resume'"
+```
+
+This uses the configured AI provider to generate a safe execution plan.
+
+#### Local AI (Offline Mode)
+Orion supports a local, offline AI sidecar (`orion-llm`).
+To use it:
+1. Build or download the `orion-llm` binary.
+2. Configure Orion to use it:
+   ```bash
+   o config set ai_provider local
+   o config set local_ai_path /path/to/orion-llm
+   ```
+
+### Execution Logs
+View history of executed AI commands:
+```bash
+o logs        # List recent logs
+o logs last   # View the most recent log
+```
+
 ### Management
 ```bash
 o list         # List all shortcuts

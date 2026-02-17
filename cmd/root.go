@@ -9,6 +9,7 @@ import (
 	"orion/internal/config"
 	"orion/internal/executor"
 	"orion/internal/history"
+	"orion/internal/plan"
 	"orion/internal/router"
 	"orion/internal/safety"
 	"orion/internal/shortcuts"
@@ -96,8 +97,10 @@ func executeIntent(cmd *cobra.Command, store *history.Store, input string, inten
 		return err
 	}
 
-	err := executor.Execute(intent, cfg)
+	commandPlan := plan.FromIntent(intent, cfg)
+	err := executor.Execute(commandPlan, cfg)
 	recordErr := store.Record(input, shortcuts.Normalize(input), err == nil)
+
 	if err != nil {
 		return err
 	}
